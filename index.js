@@ -27,8 +27,7 @@ process.stdin
     }
 
     execSync(`pass insert --multiline "lastpass/${record.name}"`, {
-      input: `${record.username}\n${record.password}\n${record.extra}\n\n${keys}\n${raw}`,
-      encoding: 'utf-8'
+      input: `${record.username}\n${record.password}\n${record.extra}\n\n${keys}\n${raw}`
     })
 
     next(null, `Imported ${record.name}\n`)
