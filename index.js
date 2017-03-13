@@ -1,6 +1,6 @@
-const csv = require('csv')
+const parse = require('csv-parse')
 const es = require('event-stream')
-const exec = require('child_process').exec
+const execSync = require('child_process').execSync
 
 // Returns match of first capture group, or false if it wasn't found
 function get (pattern, str) {
@@ -14,34 +14,30 @@ function get (pattern, str) {
 let keys
 
 process.stdin
-  .pipe(csv.parse())
-  .pipe(csv.transform(record => {
+  .pipe(parse())
+  .pipe(es.map((raw, next) => {
+    // Interpret first row as column keys
     if (!keys) {
-      keys = record
-    } else {
-      let obj = {}
-      for (let k of keys) {
-        obj[k] = record[keys.indexOf(k)]
-      }
-      return obj
-    }
-  }))
-  .pipe(es.map(function (a, cb) {
-    // Use domain as name if a record doesn't have one
-    if (!a.username.length) {
-      a.name = get(/https?:\/\/([^/]+)/, a.url)
+      keys = raw
+      return next(null)
     }
 
-    const child = exec(`pass insert --multiline "lastpass/${a.name}"`, (err) => {
-      if (err) {
-        console.error('Failed to add ' + a.name, err.message)
-        cb()
-      } else {
-        console.log(`Imported ${a.name}`)
-        cb(null)
-      }
+    // Convert array to object with proper key names
+    const record = {}
+    for (let k of keys) {
+      record[k] = raw[keys.indexOf(k)]
+    }
+
+    // Use domain as name if a record doesn't have one
+    if (!record.username.length) {
+      record.name = get(/https?:\/\/([^/]+)/, record.url)
+    }
+
+    execSync(`pass insert --multiline "lastpass/${record.name}"`, {
+      input: `${record.username}\n${record.password}\n${record.extra}\n\n${keys}\n${raw}`,
+      encoding: 'utf-8'
     })
 
-    // Pipe sensitive data
-    child.stdin.end(`${a.username}\n${a.password}\n${a.extra}\n${JSON.stringify(a)}`, 'utf-8')
+    next(null, `Imported ${record.name}\n`)
   }))
+  .pipe(process.stdout)
