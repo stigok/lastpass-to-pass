@@ -19,7 +19,7 @@ process.stdin
       record[k] = raw[keys.indexOf(k)]
     }
 
-    // Use domain as name if a record doesn't have one
+    // Use the domainname as record name if one doesn't already exist
     if (!record.name.length) {
       record.url.replace(/https?:\/\/([^/]+)/, function () {
         record.name = arguments[1]
