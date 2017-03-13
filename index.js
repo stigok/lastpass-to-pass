@@ -2,15 +2,6 @@ const parse = require('csv-parse')
 const es = require('event-stream')
 const execSync = require('child_process').execSync
 
-// Returns match of first capture group, or false if it wasn't found
-function get (pattern, str) {
-  let match
-  str.replace(pattern, function () {
-    match = arguments[1]
-  })
-  return match || false
-}
-
 let keys
 
 process.stdin
@@ -29,8 +20,10 @@ process.stdin
     }
 
     // Use domain as name if a record doesn't have one
-    if (!record.username.length) {
-      record.name = get(/https?:\/\/([^/]+)/, record.url)
+    if (!record.name.length) {
+      record.url.replace(/https?:\/\/([^/]+)/, function () {
+        record.name = arguments[1]
+      })
     }
 
     execSync(`pass insert --multiline "lastpass/${record.name}"`, {
