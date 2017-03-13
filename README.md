@@ -9,25 +9,27 @@
 
 ## Usage
 
-Export LastPass records to CSV
+    $ cat ~/lastpass.csv | node index.js
 
-  - Open the LastPass extension menu
-  - More options -> Advanced -> Export -> LastPass CSV File
-  - Enter your master password
-  - Save the CSV to a _secure location_ on your hard drive
+This program imports all the records as into `pass insert lastpass/${record.name}`.
 
-Pipe the CSV to `pass` to import all records. Imports into pass dir _lastpass_ by default.
+Expected to work with the `.csv` file you get to see when exporting from the LastPass Chrome extension.
 
-    $ cat ~/docs/passes.csv | PASSWORD_STORE_DIR="$HOME/.custom-pass-dir" node index.js
+## Export LastPass records to CSV
+
+  1. Open the LastPass extension menu
+  2. More options -> Advanced -> Export -> LastPass CSV File
+  3. Enter your master password
+  4. Save the contents to a file in a _secure location_ on your hard drive
 
 **Important:** Delete the CSV file when done
 
 ## Known errors
 
-- Does not handle duplicate entries very well. If two records with the same resolved are imported, the last one will overwrite the previous ones.
+- Does not handle duplicate entries very well. If two records with the same resolved are imported, the last one processed will overwrite the previous ones.
 
-## Why?
+## Why import to pass?
 
-I want to be in control over my own passwords, and know how they are stored and used. Additionally, I don't want to use the LastPass browser extension any more as it injects JavaScript into all pages I visit and manipulates the DOM which messes with performance tests when I'm developing web applications. No hate, tho :)
+I want to be in full control over my own passwords and know exactly how they are stored and used. Additionally, I don't want to use the LastPass browser extension any more as it injects JavaScript into all pages I visit and manipulates the DOM. This messes with debugging and performance tests when I'm developing web applications.
 
-I like how `pass` works and this move will hopefully make me come up with a neat way to autofill forms myself.
+I really like the simplicity of `pass` and I hope move will push me into creating my own autofiller.
