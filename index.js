@@ -21,8 +21,8 @@ process.stdin
 
     // Use the domainname as record name if one doesn't already exist
     if (!record.name.length) {
-      record.url.replace(/https?:\/\/([^/]+)/, function () {
-        record.name = arguments[1]
+      record.url.replace(/https?:\/\/([^/]+)/, (...args) => {
+        record.name = args[1]
       })
     }
 
